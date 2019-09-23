@@ -20,9 +20,7 @@ def load_datasets():
     return datasets
 
 datasets = load_datasets()
-# print(datasets)
-curr_year = 2018
-datasets = datasets[datasets['year'] == 2018]
+
 fig,ax = plt.subplots(figsize=(15, 8))
 def draw_barchart(year):
     dff = datasets[datasets['year'].eq(year)].sort_values(by='values', ascending=True).tail(10)
@@ -70,5 +68,6 @@ def static_draw():
     plt.show()
 
 if __name__ == "__main__":
-    draw_barchart(2018)
+    # draw_barchart(2018)
+    animator = animation.FuncAnimation(fig, draw_barchart, frames=range(2016,2020))
     plt.show()
