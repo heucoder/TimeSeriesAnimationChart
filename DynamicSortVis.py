@@ -8,6 +8,15 @@ import pandas as pd
 
 from settings import AllColors
 
+def load_datasets():
+    data = [['beijing', 'china', 2016, 10], ['beijing', 'china', 2017, 12], ['beijing', 'china', 2018, 14], ['beijing', 'china', 2019, 19],
+            ['shanghai', 'china', 2016, 8], ['shanghai', 'china', 2017, 16], ['shanghai', 'china', 2018, 32], ['shanghai', 'china', 2019, 36],
+            ['tianjin', 'china', 2016, 5], ['tianjin', 'china', 2017, 10], ['tianjin', 'china', 2018, 15], ['tianjin', 'china', 2019, 20],
+            ['guangzhou', 'china', 2016, 7], ['guangzhou', 'china', 2017, 12], ['guangzhou', 'china', 2018, 24], ['guangzhou', 'china', 2019, 30]]
+    datasets = pd.DataFrame(data = data,
+                            columns = ['city', 'country', 'year', 'values'])
+    return datasets
+
 # use class
 class AnimationBarChart():
 
@@ -54,72 +63,7 @@ class AnimationBarChart():
         animator = animation.FuncAnimation(self._fig, self._drawBarChart, frames=range(2016,2020))
         plt.show()
 
-
-# colors = dict(zip(['beijing', 'shanghai', 'tianjin', 'guangzhou'],
-#                 ['#adb0ff', '#ffb3ff', '#90d595', '#e48381']))
-
-# 
-def load_datasets():
-    data = [['beijing', 'china', 2016, 10], ['beijing', 'china', 2017, 12], ['beijing', 'china', 2018, 14], ['beijing', 'china', 2019, 19],
-            ['shanghai', 'china', 2016, 8], ['shanghai', 'china', 2017, 16], ['shanghai', 'china', 2018, 32], ['shanghai', 'china', 2019, 36],
-            ['tianjin', 'china', 2016, 5], ['tianjin', 'china', 2017, 10], ['tianjin', 'china', 2018, 15], ['tianjin', 'china', 2019, 20],
-            ['guangzhou', 'china', 2016, 7], ['guangzhou', 'china', 2017, 12], ['guangzhou', 'china', 2018, 24], ['guangzhou', 'china', 2019, 30]]
-    datasets = pd.DataFrame(data = data,
-                            columns = ['city', 'country', 'year', 'values'])
-    return datasets
-
-# datasets = load_datasets()
-
-# fig,ax = plt.subplots(figsize=(15, 8))
-# def draw_barchart(year):
-#     dff = datasets[datasets['year'].eq(year)].sort_values(by='values', ascending=True).tail(10)
-#     ax.clear()
-#     ax.barh(dff['city'], dff['values'], color = [colors[x] for x in dff['city']])
-#     dx = dff['values'].max() / 200
-#     for i, (value, name) in enumerate(zip(dff['values'], dff['city'])):
-#         ax.text(value - dx, i, name, size = 14, weight = 600, ha = 'right', va='bottom')
-#         ax.text(value - dx, i-0.25, 'china',size=10, color='#444444', ha = 'right', va = 'baseline')
-#         ax.text(value + dx, i, f'{value:,.0f}', size=14, ha = 'left', va='center')
-    
-#     ax.text(1, 0.4, year, transform=ax.transAxes, color='#777777', size=46, ha='right', weight=800)
-#     ax.text(0, 1.06, "values(thousands)", transform=ax.transAxes, size=12, color='#777777')
-#     ax.xaxis.set_major_formatter(ticker.StrMethodFormatter('{x:,.0f}'))
-#     ax.xaxis.set_ticks_position('top')
-#     ax.tick_params(axis='x', colors='#777777', labelsize=12)
-#     ax.set_yticks([])
-#     ax.margins(0, 0.01)
-#     ax.grid(which='major', axis='x', linestyle='-')
-#     ax.set_axisbelow(True)
-#     ax.text(0, 1.12, '2016-2019', transform = ax.transAxes, size = 24, weight = 600, ha='left')
-
-#     plt.box(False)
-
-# def static_draw():
-#     datasets = load_datasets()
-#     # print(datasets)
-#     curr_year = 2018
-#     datasets = datasets[datasets['year'] == 2018]
-
-#     colors = dict(zip(['beijing', 'shanghai', 'tianjin', 'guangzhou'],
-#                     ['#adb0ff', '#ffb3ff', '#90d595', '#e48381']))
-    
-#     fig, ax = plt.subplots(figsize=(15, 8))
-#     ax.barh(datasets['city'], 
-#             datasets['values'], 
-#             color = [colors[x] for x in datasets['city']])
-
-#     for i, (value, name) in enumerate(zip(datasets['values'], datasets['city'])):
-#         ax.text(value, i, name, ha = 'right')
-#         ax.text(value, i-0.25, 'china', ha = 'right')
-#         ax.text(value, i, value, ha = 'left')
-    
-#     ax.text(1, 0.4, curr_year, transform=ax.transAxes, size=46, ha='right')
-#     plt.show()
-
 if __name__ == "__main__":
-    # draw_barchart(2018)
-    # animator = animation.FuncAnimation(fig, draw_barchart, frames=range(2016,2020))
-    # plt.show()
     datasets = load_datasets()
     b = AnimationBarChart(datasets, 'values', 'year', 'city', 'country')
     b.animation()
