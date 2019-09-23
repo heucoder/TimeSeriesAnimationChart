@@ -2,12 +2,14 @@
 
 # plot animation
 import matplotlib.pyplot as plt
-import matplotlib as mpl
 import matplotlib.ticker as ticker
 import matplotlib.animation as animation
 import pandas as pd
 
-from settings import AllColors
+import logging
+
+from settings import AllColors, FILETYPES_2_FUNCS
+from utils import judge_file_type
 
 def load_datasets():
     data = [['beijing', 'china', 2016, 10], ['beijing', 'china', 2017, 12], ['beijing', 'china', 2018, 14], ['beijing', 'china', 2019, 19],
@@ -21,22 +23,25 @@ def load_datasets():
 # use class
 class AnimationBarChart():
 
-    def __init__(self, datasets, val, key, name, contents):
-        self._datasets = datasets
+    def __init__(self, val, key, name, contents):
+        self._datasets = None
         self._val = val
         self._key = key
         self._name = name
         self._contents = contents
-        self._colors = self._colorsDict()
-        self._fig, self._ax = plt.subplots(figsize = (15, 8))
+        self._colors = None
+        self._fig = None
+        self._ax = None
+        self._animator = None
     
-    def _colorsDict(self):
+    def _loadcolors(self):
+        # need to update
         name_list = list(set(self._datasets[self._name].values))
-        # print(name_list)
         color_list = AllColors[:len(name_list)]
         return dict(zip(name_list, color_list))
 
     def _drawBarChart(self, k):
+        # need to update
         dff = self._datasets[self._datasets[self._key].eq(k)].sort_values(by=self._val, ascending=True).tail(10)
         self._ax.clear()
         self._ax.barh(dff[self._name], dff[self._val], color = [self._colors[x] for x in dff[self._name]])
@@ -60,16 +65,35 @@ class AnimationBarChart():
 
         plt.box(False)  
 
-    def animation(self):
+    def animation(self, filepath, filetype = None, saveflag = True, **kw):
+        #need to update
+
+        # load file
+        self._datasets = self._loadfile(filepath, filetype, **kw)
+        # load_colors
+        self._colors = self._loadcolors()
+        # make animator 
+        self._fig, self._ax = plt.subplots(figsize = (15, 8))
         animator = animation.FuncAnimation(self._fig, self._drawBarChart, frames=range(2016,2020))
+        if saveflag:
+            animator.save('resetvalue.gif', writer='imagemagick')
         plt.show()
 
-    # 光哥在这加个方法把
-
-    def loadfile(self, filepath, filetype = None):
-        pass
+    def _loadfile(self, filepath, filetype = None, **kw):
+        
+        if(filetype == None):
+            filetype = judge_file_type(filepath)
+        if(filetype == None):
+            logging.error("filepath error !")
+            return None
+        
+        loadfunc = FILETYPES_2_FUNCS[filetype]
+        datasets = loadfunc(filepath, **kw)
+        return datasets
 
 if __name__ == "__main__":
-    datasets = load_datasets()
-    b = AnimationBarChart(datasets, 'values', 'year', 'city', 'country')
-    b.animation()
+    # datasets = load_datasets()
+
+    b = AnimationBarChart('values', 'year', 'city', 'country')
+    path = 'data1.json'
+    b.animation(path)
