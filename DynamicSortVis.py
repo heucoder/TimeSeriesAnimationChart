@@ -1,5 +1,6 @@
 #coding=utf-8
 
+# plot animation
 import matplotlib.pyplot as plt
 import matplotlib as mpl
 import matplotlib.ticker as ticker
@@ -62,6 +63,11 @@ class AnimationBarChart():
     def animation(self):
         animator = animation.FuncAnimation(self._fig, self._drawBarChart, frames=range(2016,2020))
         plt.show()
+
+    # 光哥在这加个方法把
+
+    def loadfile(self, filepath, filetype = None):
+        pass
 
 if __name__ == "__main__":
     datasets = load_datasets()
