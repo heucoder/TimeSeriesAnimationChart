@@ -19,6 +19,7 @@ class AnimationBarChart():
         self._contents = contents
         self._colors = self._colorsDict()
         self._fig, self._ax = plt.subplots(figsize = (15, 8))
+        self.animator=None
     
     def _colorsDict(self):
         name_list = list(set(self._datasets[self._name].values))
@@ -51,8 +52,12 @@ class AnimationBarChart():
         plt.box(False)  
 
     def animation(self):
-        animator = animation.FuncAnimation(self._fig, self._drawBarChart, frames=range(2016,2020))
+        self.animator = animation.FuncAnimation(self._fig, self._drawBarChart, frames=range(2016,2020))
         plt.show()
+    def savemovie(self):
+    	self.animator.save('resetvalue.gif', writer='imagemagick')
+
+
 
 
 # colors = dict(zip(['beijing', 'shanghai', 'tianjin', 'guangzhou'],
@@ -123,3 +128,4 @@ if __name__ == "__main__":
     datasets = load_datasets()
     b = AnimationBarChart(datasets, 'values', 'year', 'city', 'country')
     b.animation()
+    b.savemovie()
