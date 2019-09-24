@@ -9,5 +9,10 @@ AllColors = ['#adb0ff', '#ffb3ff', '#90d595', '#e48381']
 # range list
 RANGE_LIST = None
 
-# 
+# interval
+interval = None
 
+# repeat
+repeat = None
+
+# 

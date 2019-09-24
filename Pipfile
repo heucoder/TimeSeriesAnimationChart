@@ -11,6 +11,7 @@ v = {editable = true,version = "*"}
 datasets = "*"
 tablib = "*"
 pandas = "*"
+ipython = "*"
 
 [requires]
 python_version = "3.6"

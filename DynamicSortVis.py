@@ -6,6 +6,8 @@ import matplotlib.ticker as ticker
 import matplotlib.animation as animation
 import pandas as pd
 
+from IPython.display import HTML
+
 # logging
 import logging
 
@@ -78,11 +80,11 @@ class AnimationBarChart():
         dx = dff[self._val].max() / 200  # need fixed
         for i, (value, name) in enumerate(zip(dff[self._val], dff[self._name])):
             self._ax.text(value - dx, i, name, size = 14, weight = 600, ha = 'right', va='bottom')
-            self._ax.text(value - dx, i-0.25, 'c', size=10, color='#444444', ha = 'right', va = 'baseline')
+            self._ax.text(value - dx, i-0.25, 'china', size=10, color='#444444', ha = 'right', va = 'baseline')
             self._ax.text(value + dx, i, f'{value:,.0f}', size=14, ha = 'left', va='center')
 
-        self._ax.text(1, 0.4, k, transform=self._ax.transAxes, color='#777777', size=46, ha='right', weight=800)
-        self._ax.text(0, 1.06, "values(thousands)", transform=self._ax.transAxes, size=12, color='#777777')
+        self._ax.text(1, 0.5, k, transform=self._ax.transAxes, color='#777777', size=46, ha='right', weight=800)
+        self._ax.text(0, 1.05, "{}(thousands)".format(self._val), transform=self._ax.transAxes, size=12, color='#777777')
         self._ax.xaxis.set_major_formatter(ticker.StrMethodFormatter('{x:,.0f}'))
         self._ax.xaxis.set_ticks_position('top')
         self._ax.tick_params(axis='x', colors='#777777', labelsize=12)
@@ -106,12 +108,14 @@ class AnimationBarChart():
         # load_colors
         self._colors = self._loadcolors()
         # make animator 
-        self._fig, self._ax = plt.subplots(figsize = (15, 8))
-        animator = animation.FuncAnimation(self._fig, self._drawBarChart, frames=range(2016,2020))
+        self._fig, self._ax = plt.subplots(figsize = (12, 8))
+        animator = animation.FuncAnimation(self._fig, self._drawBarChart, frames=range(2016,2020), interval = 500 ,repeat = True)
         if saveflag:
             animator.save('resetvalue.gif', writer='imagemagick')
         plt.show()
-    
+        # HTML(animator.to_jshtml())
+
+        
     # 感觉一般般,先这样把
     def bind(self, filetype, loadfileFunc):
         FileType2.bind(filetype, loadfileFunc)

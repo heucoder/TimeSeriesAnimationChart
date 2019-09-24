@@ -13,6 +13,7 @@ class FileType2():
 
     def __init__(self):
         pass
+    
     @classmethod
     def bind(cls, filetype, loadfileFunc):
         cls.__FILETYPES.append(filetype)
