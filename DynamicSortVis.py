@@ -6,21 +6,17 @@ import matplotlib.ticker as ticker
 import matplotlib.animation as animation
 import pandas as pd
 
+# logging
 import logging
 
-from settings import AllColors, FILETYPES_2_FUNCS
-from utils import judge_file_type
+# 
+from config import AllColors
+from utils import load_datasets, FileType2
 
-def load_datasets():
-    data = [['beijing', 'china', 2016, 10], ['beijing', 'china', 2017, 12], ['beijing', 'china', 2018, 14], ['beijing', 'china', 2019, 19],
-            ['shanghai', 'china', 2016, 8], ['shanghai', 'china', 2017, 16], ['shanghai', 'china', 2018, 32], ['shanghai', 'china', 2019, 36],
-            ['tianjin', 'china', 2016, 5], ['tianjin', 'china', 2017, 10], ['tianjin', 'china', 2018, 15], ['tianjin', 'china', 2019, 20],
-            ['guangzhou', 'china', 2016, 7], ['guangzhou', 'china', 2017, 12], ['guangzhou', 'china', 2018, 24], ['guangzhou', 'china', 2019, 30]]
-    datasets = pd.DataFrame(data = data,
-                            columns = ['city', 'country', 'year', 'values'])
-    return datasets
+'''
+core class AnimationBarChart
+'''
 
-# use class
 class AnimationBarChart():
 
     def __init__(self, val, key, name, contents = ""):
@@ -63,12 +59,13 @@ class AnimationBarChart():
     def _loadfile(self, filepath, filetype = None, **kw):
 
         if(filetype == None):
-            filetype = judge_file_type(filepath)
+            filetype = FileType2.judge_file_type(filepath)
         if(filetype == None):
             logging.error("filename error !")
             return None
         
-        loadfunc = FILETYPES_2_FUNCS[filetype]
+        loadfunc = FileType2.get(filetype)
+        
         datasets = loadfunc(filepath, **kw)
         return datasets
 
@@ -114,7 +111,10 @@ class AnimationBarChart():
         if saveflag:
             animator.save('resetvalue.gif', writer='imagemagick')
         plt.show()
-
+    
+    # 感觉一般般,先这样把
+    def bind(self, filetype, loadfileFunc):
+        FileType2.bind(filetype, loadfileFunc)
 
 if __name__ == "__main__":
     # datasets = load_datasets()
