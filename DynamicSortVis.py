@@ -23,7 +23,7 @@ def load_datasets():
 # use class
 class AnimationBarChart():
 
-    def __init__(self, val, key, name, contents):
+    def __init__(self, val, key, name, contents = ""):
         self._datasets = None
         self._val = val
         self._key = key
@@ -39,6 +39,38 @@ class AnimationBarChart():
         name_list = list(set(self._datasets[self._name].values))
         color_list = AllColors[:len(name_list)]
         return dict(zip(name_list, color_list))
+
+    def _checkfile(self):
+        # need fixd use try .. except ..
+        assert isinstance(self._datasets, pd.DataFrame)
+
+        columns = [self._val, self._key, self._name]
+        if self._contents != '':
+            columns.append(self._contents)
+        try:
+            df = self._datasets[columns]
+        except KeyError:
+            logging.error("index error")
+            return -1
+
+        # has null 
+        for col in columns:
+            null_num = df[col].isnull().sum()
+            if null_num != 0:
+                logging.warning('{} has null val'.format(col))
+        return 0 
+
+    def _loadfile(self, filepath, filetype = None, **kw):
+
+        if(filetype == None):
+            filetype = judge_file_type(filepath)
+        if(filetype == None):
+            logging.error("filename error !")
+            return None
+        
+        loadfunc = FILETYPES_2_FUNCS[filetype]
+        datasets = loadfunc(filepath, **kw)
+        return datasets
 
     def _drawBarChart(self, k):
         # need to update
@@ -61,15 +93,19 @@ class AnimationBarChart():
         self._ax.margins(0, 0.01)
         self._ax.grid(which='major', axis='x', linestyle='-')
         self._ax.set_axisbelow(True)
-        self._ax.text(0, 1.12, '2016-2019', transform = self._ax.transAxes, size = 24, weight = 600, ha='left')
+        self._ax.text(0, 1.10, '2016-2019', transform = self._ax.transAxes, size = 24, weight = 600, ha='left')
 
         plt.box(False)  
 
-    def animation(self, filepath, filetype = None, saveflag = True, **kw):
+    def animation(self, filepath, filetype = None, saveflag = False, **kw):
         #need to update
 
         # load file
         self._datasets = self._loadfile(filepath, filetype, **kw)
+        # check
+        if self._checkfile():
+            logging.error("file check error")
+            return 
         # load_colors
         self._colors = self._loadcolors()
         # make animator 
@@ -79,21 +115,10 @@ class AnimationBarChart():
             animator.save('resetvalue.gif', writer='imagemagick')
         plt.show()
 
-    def _loadfile(self, filepath, filetype = None, **kw):
-        
-        if(filetype == None):
-            filetype = judge_file_type(filepath)
-        if(filetype == None):
-            logging.error("filepath error !")
-            return None
-        
-        loadfunc = FILETYPES_2_FUNCS[filetype]
-        datasets = loadfunc(filepath, **kw)
-        return datasets
 
 if __name__ == "__main__":
     # datasets = load_datasets()
 
     b = AnimationBarChart('values', 'year', 'city', 'country')
-    path = 'data1.json'
+    path = 'data1.csv'
     b.animation(path)
