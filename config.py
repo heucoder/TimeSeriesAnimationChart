@@ -3,16 +3,10 @@ import pandas as pd
 '''
 change variables of Picture
 '''
-# colors
+# colors 20
 AllColors = ['#adb0ff', '#ffb3ff', '#90d595', '#e48381']
 
-# range list
-RANGE_LIST = None
 
-# interval
-interval = None
-
-# repeat
-repeat = None
-
-# 
+# display_num
+# DISPLAY_NUM = 10
+# MAX_DISPLAY_NUM = 20
