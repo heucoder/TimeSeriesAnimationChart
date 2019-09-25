@@ -15,7 +15,7 @@ from IPython.display import HTML
 import logging
 
 # 
-from config import AllColors
+from config import AllColors, MARKERS
 from utils import FileType2
 
 '''
@@ -41,6 +41,11 @@ class AnimationBarChart():
         color_list = AllColors[:len(name_list)]
         return dict(zip(name_list, color_list))
 
+    def _loadmarkers(self):
+        name_list = list(set(self._datasets[self._name].values))
+        marker_list = MARKERS[:len(name_list)]
+        return dict(zip(name_list, marker_list))        
+
     def _checkdataset(self):
         # need fixd use try .. except ..
         assert isinstance(self._datasets, pd.DataFrame)
@@ -63,10 +68,12 @@ class AnimationBarChart():
 
     def _make_frame(self, cmp = None, reverse = False):
         keys = list(set(self._datasets[self._key].values))
-        keys.sort(key = cmp_to_key(cmp), reverse=reverse)
+        if cmp != None:
+            cmp = cmp_to_key(cmp)
+        keys.sort(key = cmp, reverse=reverse)
         print(keys)
-
         return keys
+
 
     def _drawBarChart(self, k):
         # need to update
@@ -93,12 +100,34 @@ class AnimationBarChart():
         plt.box(False)  
 
     def _drawPieChart(self, k):
-        pass
+        dff = self._datasets[self._datasets[self._key].eq(k)].tail(self._display_num)
+        self._ax.clear()
+        self._ax.pie(x = dff[self._val], labels = dff[self._name], autopct='%1.2f%%', center=(6,6), radius = 1)
+        # 饼图似乎有点问题
+        # self._ax.text(5, 5, '{}-{}'.format(self._frameMin, self._frameMax), transform = self._ax.transAxes, size = 24, weight = 600, ha='left')
+        plt.legend()
+        self._ax.set_xlabel(k)
     
     def _drawLineChart(self, k):
-        pass
+        dff = self._datasets[self._datasets[self._key].le(k)]
+        df = dff[dff[self._key].eq(k)]
+        self._ax.clear()
+        for name in df[self._name]:
+            item = dff[dff[self._name].eq(name)]
+            self._ax.plot(item[self._key], item[self._val],c = self._colors[name], marker = self._markers[name], lw = 2.5, ms = 9, label = name)
+        
+        for _, (value, key, name) in enumerate(zip(df[self._val], df[self._key], df[self._name])):
+            self._ax.text(key, value, name, size = 12, weight=400, ha='right')
+            self._ax.text(key, value, value, size = 12, weight=400, ha='left')           
 
-    def animation(self, chart_type = 'bar', display_num = 10, interval = 200, repeat = True, frames = None, cmp=None, reverse = False, saveflag = False):
+        self._ax.grid()
+        self._ax.grid(color='b', linestyle='--', linewidth=1,alpha=0.5)  
+
+        self._ax.spines['top'].set_visible(False) # 去掉上边框
+        self._ax.spines['right'].set_visible(False) # 去掉上边框
+        self._ax.legend() # 
+        
+    def animation(self, chart_type = 'pie', display_num = 10, interval = 200, repeat = True, frames = None, cmp=None, reverse = False, saveflag = False):
         #need to update
         self._display_num = display_num
         # check
@@ -106,12 +135,13 @@ class AnimationBarChart():
             logging.error("file check error")
             return 
         
-        # load_colors
+        # load_colors, maekers
         self._colors = self._loadcolors()
-
+        self._markers = self._loadmarkers()
         #make frame
         if(frames == None):
             frames = self._make_frame(cmp, reverse)
+        self._frames = frames
         self._frameMax = frames[-1]
         self._frameMin = frames[0]
         # select chart_type
@@ -133,9 +163,6 @@ class AnimationBarChart():
         if saveflag:
             animator.save('resetvalue.gif', writer='imagemagick')
         plt.show()
-
-# def cmp(x, y):
-#     return y - x
 
 if __name__ == "__main__":
     # datasets = load_datasets()
