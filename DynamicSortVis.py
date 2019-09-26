@@ -1,6 +1,7 @@
 #coding=utf-8
 
 # plot animation
+import matplotlib
 import matplotlib.pyplot as plt
 import matplotlib.ticker as ticker
 import matplotlib.animation as animation
@@ -21,6 +22,11 @@ from utils import FileType2
 '''
 core class AnimationBarChart
 '''
+
+# support Chinese
+
+matplotlib.rcParams['font.sans-serif'] = ['KaiTi']
+matplotlib.rcParams['font.serif'] = ['KaiTi']
 
 class AnimationBarChart():
 
@@ -81,18 +87,18 @@ class AnimationBarChart():
         self._ax.clear()
         self._ax.barh(dff[self._name], dff[self._val], color = [self._colors[x] for x in dff[self._name]])
 
-        dx = dff[self._val].min() / 100  # need fixed
+        dx = 0.01
         for i, (value, name) in enumerate(zip(dff[self._val], dff[self._name])):
-            self._ax.text(value - dx, i, name, size = 14, weight = 600, ha = 'right', va='bottom')
-            self._ax.text(value - dx, i-0.25, 'china', size=10, color='#444444', ha = 'right', va = 'baseline')
-            self._ax.text(value + dx, i, f'{value:,.0f}', size=14, ha = 'left', va='center')
+            self._ax.text(value*(1-dx), i, name, size = 14, weight = 600, ha = 'right', va='bottom')
+            self._ax.text(value*(1+dx), i-0.25, 'china', size=10, color='#444444', ha = 'right', va = 'baseline')
+            self._ax.text(value*(1+dx), i, f'{value:,.0f}', size=14, ha = 'left', va='center')
 
         self._ax.text(1, 0.25, k, transform=self._ax.transAxes, color='#777777', size=46, ha='right', weight=800)
-        self._ax.text(0, 1.05, "{}(thousands)".format(self._val), transform=self._ax.transAxes, size=12, color='#777777')
+        self._ax.text(0, 1.05, "{}".format(self._val), transform=self._ax.transAxes, size=12, color='#777777')
         self._ax.xaxis.set_major_formatter(ticker.StrMethodFormatter('{x:,.0f}'))
         self._ax.xaxis.set_ticks_position('top')
         self._ax.tick_params(axis='x', colors='#777777', labelsize=12)
-        # self._ax.set_yticks([])
+        self._ax.set_yticks([])
         self._ax.margins(0, 0.01)
         self._ax.grid(which='major', axis='x', linestyle='-')
         self._ax.set_axisbelow(True)
@@ -100,13 +106,16 @@ class AnimationBarChart():
         plt.box(False)  
 
     def _drawPieChart(self, k):
-        dff = self._datasets[self._datasets[self._key].eq(k)].tail(self._display_num)
+        dff = self._datasets[self._datasets[self._key].eq(k)].tail(self._display_num).tail(self._display_num)
         self._ax.clear()
-        self._ax.pie(x = dff[self._val], labels = dff[self._name], autopct='%1.2f%%', center=(6,6), radius = 1)
+
+        self._ax.pie(x = dff[self._val], labels = dff[self._name], autopct='%1.2f%%', center=(8,6), radius = 1, labeldistance = 1.1,
+                    textprops=dict(size = 14, weight = 600, color = '#392f41'))
+        
         # 饼图似乎有点问题
         # self._ax.text(5, 5, '{}-{}'.format(self._frameMin, self._frameMax), transform = self._ax.transAxes, size = 24, weight = 600, ha='left')
-        plt.legend()
-        self._ax.set_xlabel(k)
+        plt.legend(title = '{}'.format(self._name), loc="center right", bbox_to_anchor=(1, 0, 0.5, 1))
+        self._ax.set_xlabel('{}'.format(k), size = 24, color = '#777777', weight = 600)
     
     def _drawLineChart(self, k):
         dff = self._datasets[self._datasets[self._key].le(k)]
@@ -116,18 +125,20 @@ class AnimationBarChart():
             item = dff[dff[self._name].eq(name)]
             self._ax.plot(item[self._key], item[self._val],c = self._colors[name], marker = self._markers[name], lw = 2.5, ms = 9, label = name)
         
+        dx = 0.03
         for _, (value, key, name) in enumerate(zip(df[self._val], df[self._key], df[self._name])):
-            self._ax.text(key, value, name, size = 12, weight=400, ha='right')
-            self._ax.text(key, value, value, size = 12, weight=400, ha='left')           
+            self._ax.text(key, value*(1+dx), name, size = 10, weight=400, va='bottom', color = '#444444')
+            self._ax.text(key, value*(1+dx), f'{value:,.0f}', size = 12, weight=400, va='top', color = '#444433')           
 
-        self._ax.grid()
-        self._ax.grid(color='b', linestyle='--', linewidth=1,alpha=0.5)  
-
+        self._ax.grid(which = 'major', axis = 'y', color='c', linestyle='--', linewidth=1, alpha=0.3)  
+        self._ax.set_xlabel('{}'.format(self._key), size = 20, color = '#777777', weight = 400)
+        self._ax.yaxis.set_major_formatter(ticker.StrMethodFormatter('{x:,.0f}'))
+        self._ax.set_ylabel('{}'.format(self._val), size = 20, color = '#777777', weight = 400)
         self._ax.spines['top'].set_visible(False) # 去掉上边框
         self._ax.spines['right'].set_visible(False) # 去掉上边框
         self._ax.legend() # 
         
-    def animation(self, chart_type = 'pie', display_num = 10, interval = 200, repeat = True, frames = None, cmp=None, reverse = False, saveflag = False):
+    def animation(self, chart_type = 'line', display_num = 10, interval = 200, repeat = True, frames = None, cmp=None, reverse = False, saveflag = False):
         #need to update
         self._display_num = display_num
         # check
@@ -169,4 +180,4 @@ if __name__ == "__main__":
     path = 'data1.csv'
     datasets = FileType2.load_file(path)
     b = AnimationBarChart(datasets, 'values', 'year', 'city', 'country')
-    b.animation()
+    b.animation(chart_type = 'pie')
