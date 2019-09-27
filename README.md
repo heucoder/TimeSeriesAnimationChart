@@ -15,13 +15,13 @@
 - 例如：
 
 `python AnimationChart.py bar example/population_data.csv val year country `
-![Bar](/home/yt/github_project/AnimationChart/example/各国人口数目-bar.gif)
+![Bar](/example/各国人口数目-bar.gif)
 
 `python AnimationChart.py line example/population_data.csv val year country --selected="中国 美国 印度" --title="population"`
-![Line](/home/yt/github_project/AnimationChart/example/各国人口数目-line.gif)
+![Line](/example/各国人口数目-line.gif)
 
 `python AnimationChart.py pie example/population_data.csv val year country --selected="中国 美国 印度" --title="population"`
-![Pie](/home/yt/github_project/AnimationChart/example/各国人口比例-pie.gif)
+![Pie](/example/各国人口比例-pie.gif)
 
 - 也可见example文件夹下的例子
 
