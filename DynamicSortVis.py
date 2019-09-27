@@ -21,6 +21,7 @@ from config import AllColors, MARKERS, FONT_PATH
 from utils import FileType2
 
 # support Chinese
+font_title = FontProperties(fname=FONT_PATH, size = 20, weight=600)
 font1 = FontProperties(fname=FONT_PATH, size = 14, weight=600)
 font2 = FontProperties(fname=FONT_PATH, size = 12, weight=600)
 '''
@@ -41,6 +42,7 @@ class AnimationBarChart():
         self._fig = None
         self._ax = None
         self._animator = None
+        self._title = None
     
     def _loadcolors(self):
         # need to update
@@ -107,7 +109,8 @@ class AnimationBarChart():
         self._ax.grid(which='major', axis='x', linestyle='-')
         self._ax.set_axisbelow(True)
         self._ax.text(0, 1.10, '{}-{}'.format(self._frameMin, self._frameMax), transform = self._ax.transAxes, size = 24, weight = 600, ha='left')
-        plt.box(False)  
+        plt.box(False)
+        plt.title('{}'.format(self._title), fontproperties = font_title, color = '#777777')
 
     def _drawPieChart(self, k):
         # 分为selected和未selected两部分
@@ -116,21 +119,20 @@ class AnimationBarChart():
         dff = pd.concat([dff, otherdff], axis = 0)
 
         self._ax.clear()
-
         self._ax.pie(x = dff[self._val], labels = dff[self._name], autopct='%1.2f%%', center=(8,6), radius = 1, labeldistance = 1.1,
                     textprops=dict(fontproperties=font1))
-        
         # 饼图似乎有点问题
-        # plt.legend(title = '{}'.format(self._name), loc="center right", bbox_to_anchor=(1, 0, 0.5, 1))
+        plt.legend(title = '{}'.format(self._name), loc="center right", bbox_to_anchor=(1, 0, 0.5, 1), prop = font2)
         self._ax.set_xlabel('{}'.format(k), size = 24, color = '#777777', weight = 600)
-    
+        plt.title('{}'.format(self._title), fontproperties = font_title, color = '#777777')
+
     def _drawLineChart(self, k):
         dff = self._datasets[self._datasets[self._key].le(k)]
         df = dff[dff[self._key].eq(k)]
         self._ax.clear()
         for name in df[self._name]:
             item = dff[dff[self._name].eq(name)]
-            self._ax.plot(item[self._key], item[self._val],c = self._colors[name], marker = self._markers[name], lw = 2.5, ms = 9, label = name)
+            self._ax.plot(item[self._key], item[self._val],c = self._colors[name], marker = self._markers[name], lw = 2, ms = 5, label = name)
         
         dx = 0.03
         for _, (value, key, name) in enumerate(zip(df[self._val], df[self._key], df[self._name])):
@@ -143,9 +145,10 @@ class AnimationBarChart():
         self._ax.set_ylabel('{}'.format(self._val), size = 20, color = '#777777', weight = 400)
         self._ax.spines['top'].set_visible(False) # 去掉上边框
         self._ax.spines['right'].set_visible(False) # 去掉上边框
-        # self._ax.legend(fontproperties=font2) # 
+        self._ax.legend(prop=font2) #
+        plt.title('{}'.format(self._title), fontproperties = font_title, color = '#777777')
         
-    def animation(self, chart_type = 'line', display_num = 10, interval = 200, repeat = True, frames = None, cmp=None, reverse = False, saveflag = False):
+    def animation(self, chart_type = 'line', display_num = 10, interval = 200, title = '', repeat = False, frames = None, cmp=None, reverse = False, saveflag = True):
         #need to update
         self._display_num = display_num
         # check
@@ -156,12 +159,15 @@ class AnimationBarChart():
         # load_colors, maekers
         self._colors = self._loadcolors()
         self._markers = self._loadmarkers()
+        self._title = title
+        
         #make frame
         if(frames == None):
             frames = self._make_frame(cmp, reverse)
         self._frames = frames
         self._frameMax = frames[-1]
         self._frameMin = frames[0]
+
         # select chart_type
         drawFunc = None
         if chart_type == 'bar':
@@ -181,18 +187,19 @@ class AnimationBarChart():
             df = df_tmp[self._val].groupby(df_tmp[self._key]).sum()
             self._otherdf = pd.DataFrame()
 
-            self._otherdf['year'] = df.index
-            self._otherdf['val'] = df.values
-            self._otherdf['country'] = 'others'
-            self._otherdf['states'] = 'others'
-
+            self._otherdf[self._key] = df.index
+            self._otherdf[self._val] = df.values
+            self._otherdf[self._name] = 'others'
+            self._otherdf[self._contents] = 'others'
             self._datasets = self._datasets[self._datasets[self._name].isin(self._selected)]
 
         # make animator 
         self._fig, self._ax = plt.subplots(figsize = (15, 8))
+        plt.title('{}'.format('各国人口数量'), color = '#444444', fontproperties=font1)
         animator = animation.FuncAnimation(self._fig, drawFunc, frames=frames, interval = interval ,repeat = repeat)
         if saveflag:
-            animator.save('resetvalue.gif', writer='imagemagick')
+            animator.save('{}-{}.gif'.format(self._title, chart_type), writer='imagemagick')
+
         plt.show()
 
 if __name__ == "__main__":
@@ -201,7 +208,7 @@ if __name__ == "__main__":
     datasets = FileType2.load_file(path)
     selected = ['中国', '美国', '印度']
     b = AnimationBarChart(datasets, 'val', 'year', 'country', 'states', selected=selected)
-    b.animation(chart_type = 'pie', display_num=5)
+    b.animation(chart_type = 'line', display_num=5, title = '各国人口数目')
 
 
     # datasets['val'] = datasets['val'].apply(lambda x: eval(x.replace(',','')))

@@ -9,7 +9,6 @@ v = {editable = true,version = "*"}
 
 [packages]
 datasets = "*"
-tablib = "*"
 pandas = "*"
 ipython = "*"
 
