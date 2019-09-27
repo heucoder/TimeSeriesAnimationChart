@@ -8,20 +8,22 @@
 - python3
 
 ## 如何使用
-command命令格式如下：
+- command命令格式如下：
 
 `python AnimationChart.py (bar | line | pie) <file_path> <val> <key> <name> [--contents=<contents>] [--bar_display_num=<bar_display_num>] [--selected=<selectd>] [--title=<title>]`
 
-例如：
+- 例如：
 
 `python AnimationChart.py bar example/population_data.csv val year country `
-![]('/home/yt/github_project/AnimationChart/example/各国人口数目-bar.gif')
+![Bar](/home/yt/github_project/AnimationChart/example/各国人口数目-bar.gif)
 
 `python AnimationChart.py line example/population_data.csv val year country --selected="中国 美国 印度" --title="population"`
-![]('/home/yt/github_project/AnimationChart/example/各国人口数目-line.gif')
+![Line](/home/yt/github_project/AnimationChart/example/各国人口数目-line.gif)
 
 `python AnimationChart.py pie example/population_data.csv val year country --selected="中国 美国 印度" --title="population"`
-![]('/home/yt/github_project/AnimationChart/example/各国人口数目-pie.gif')
+![Pie](/home/yt/github_project/AnimationChart/example/各国人口比例-pie.gif)
+
+- 也可见example文件夹下的例子
 
 ## 仍需改进
 - 添加更多种类的图形
