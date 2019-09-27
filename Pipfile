@@ -10,7 +10,7 @@ v = {editable = true,version = "*"}
 [packages]
 datasets = "*"
 pandas = "*"
-ipython = "*"
+docopt = "*"
 
 [requires]
 python_version = "3.6"
