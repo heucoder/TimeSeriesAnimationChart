@@ -51,7 +51,7 @@ class TimeSeriesAnimationChart():
 
         try:
             df = self._datasets[columns]
-        except keyError:
+        except KeyError:
             logging.error("index error")
             return -1
 
@@ -71,7 +71,7 @@ class TimeSeriesAnimationChart():
         if cmp != None:
             cmp = cmp_to_key(cmp)
         times.sort(key = cmp, reverse=reverse)
-        print(times)
+        # print(times)
         return times
 
     def _drawBarChart(self, k):
@@ -134,7 +134,7 @@ class TimeSeriesAnimationChart():
         self._ax.set_ylabel('{}'.format(self._val), size = 20, color = '#777777', weight = 400)
         self._ax.spines['top'].set_visible(False) # 去掉上边框
         self._ax.spines['right'].set_visible(False) # 去掉上边框
-        self._ax.legend(prop=font2) #
+        self._ax.legend(prop=font2,  bbox_to_anchor=(0, 0, 0.1, 1)) #
         plt.title('{}'.format(self._title), fontproperties = font_title, color = '#777777')
         self._ax.text(0.25, 0.9, k, transform=self._ax.transAxes, color='#777777', size=46, ha='right', weight=800)
 
@@ -146,14 +146,14 @@ class TimeSeriesAnimationChart():
         if self._checkdataset():
             logging.error("file check error")
             return 
-        
+        logging.info('Check Accomplished!')
         # loads 
         self._colors = self._loadcolors()
         self._markers = self._loadmarkers()
         self._selected = selected
         self._title = title
         self._bar_display_num = bar_display_num
-
+        logging.info('Load Congfig! Accomplished!')
         # make frame
         if(frames == None):
             frames = self._make_frame(cmp, reverse)
@@ -188,21 +188,32 @@ class TimeSeriesAnimationChart():
         self._fig, self._ax = plt.subplots(figsize = (15, 8))
         animator = animation.FuncAnimation(self._fig, drawFunc, frames=frames, interval = interval ,repeat = repeat)
         if saveflag:
+            print('please wait, {}-{}.gif are saving'.format(self._title, chart_type))
             animator.save('{}-{}.gif'.format(self._title, chart_type), writer='imagemagick')
+            print('saved as {}-{}.gif are saving'.format(self._title, chart_type))
         plt.show()
 
 def cli():
     cli_docs = """
-    TimeSeriesAnimationChart is a smalls tools for time series dynamic visualization
- 
+    ******************************************************************************************************************************************
+    TimeSeriesAnimationChart is a smalls tools for time series dynamic visualization.
+    support .json .csv .xlsx
+    save AnimationChart as .fig file
 
     Usage:
-        TimeSeriesAnimationChart.py (bar | line | pie) <file_path> <val> <time> <name> [--bar_display_num=<bar_display_num>] [--selected=<selectd>] [--title=<title>]
+        TimeSeriesAnimationChart.py (bar | line | pie) <file_path> <val> <time> <name> [--bar_display_num=<bar_display_num>] [--selected=<selectd>] [--title=<title>] [--save=<save>]
         TimeSeriesAnimationChart.py (-h | --help)
     
     Options:
-        -h --help     Show this screen.
+        -h --help                                 Show this screen.
+        --bar_display_num=<bar_display_num>       bars num
+        --selected=<selectd>                      specific name
+        [--title=<title>                          chart title
+        --save=<save>                             save as .fig file (true|false)
 
+    Query example：
+        python TimeSeriesAnimationChart.py bar example/population_data.csv val year country --save=true
+        python TimeSeriesAnimationChart.py line example/population_data.csv val year country --selected='中国 印度 美国'
     """
     arguments = docopt(cli_docs)
     file_path = arguments['<file_path>']
@@ -217,11 +228,12 @@ def cli():
         chart_type = 'pie'
     bar_display_num = 10 if not arguments['--bar_display_num'] else int(arguments['--bar_display_num'])
     selectd = arguments['--selected'].split(' ') if arguments['--selected'] else None
-    title  = arguments['--title'] if arguments['--title'] else ""
-    print(arguments)
+    title  = arguments['--title'] if arguments['--title'] else "chart"
+    saveflag = arguments['--save'] if arguments['--save'] else ""
+
     datasets = FileType2.load_file(file_path)
     a = TimeSeriesAnimationChart(datasets, val, time, name)
-    a.animation(chart_type, bar_display_num, selectd, title)
+    a.animation(chart_type, bar_display_num, selectd, title, saveflag)
 
 if __name__ == "__main__":
     cli()
